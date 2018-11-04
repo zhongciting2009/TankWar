@@ -6,23 +6,22 @@ import java.util.Vector;
 
 
 /**
- * Ì¹¿ËÀà
+ * å¦å…‹ç±»
  * 
- * @author jelly
  * 
  */
 public  class Tank {
-	public static final int TANK_ORIENTATION_NORTH = 0;// ³¯Ïò ±±
-	public static final int TANK_ORIENTATION_WEST = 1;// Î÷
-	public static final int TANK_ORIENTATION_SOUTH = 2;// ÄÏ
-	public static final int TANK_ORIENTATION_EAST = 3;// ¶«
+	public static final int TANK_ORIENTATION_NORTH = 0;// æœå‘ åŒ—
+	public static final int TANK_ORIENTATION_WEST = 1;// è¥¿
+	public static final int TANK_ORIENTATION_SOUTH = 2;// å—
+	public static final int TANK_ORIENTATION_EAST = 3;// ä¸œ
 
-	public static final int TANK_TYPE_US = 10;// ÎÒ·½Ì¹¿Ë
-	public static final int TANK_TYPE_ENEMY = 20;// µĞ·ÅÌ¹¿Ë
-	protected int x;// ³õÊ¼ºá×ø±ê
-	protected int y;// ³õÊ¼×İ×ø±ê
+	public static final int TANK_TYPE_US = 10;// æˆ‘æ–¹å¦å…‹
+	public static final int TANK_TYPE_ENEMY = 20;// æ•Œæ”¾å¦å…‹
+	protected int x;// åˆå§‹æ¨ªåæ ‡
+	protected int y;// åˆå§‹çºµåæ ‡
 	protected int tankType;
-	protected int orientation;// ³¯Ïò£¬·½Ïò
+	protected int orientation;// æœå‘ï¼Œæ–¹å‘
 	 
 	
 	protected   Vector<Obstruction> obstVector;
