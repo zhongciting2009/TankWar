@@ -13,31 +13,36 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Random;
 import java.util.Vector;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
+import javax.swing.ImageIcon;
 /**
  * 
- * Ïß³ÌÀà  ÓÎÏ·Ö÷³¡¾°
+ * çº¿ç¨‹ç±»  æ¸¸æˆä¸»åœºæ™¯
  */
 public class MainScene extends JPanel implements KeyListener,Runnable {
+	ImageIcon brickwall = new ImageIcon(TankWar.class.getResource("brickwall2.png"));
+	ImageIcon steelwall = new ImageIcon(TankWar.class.getResource("steelwall2.png"));
+	ImageIcon xuebao = new ImageIcon(TankWar.class.getResource("xuebao.jpg"));
+	ImageIcon yisu = new ImageIcon(TankWar.class.getResource("yisu.jpg"));
+	ImageIcon shesu = new ImageIcon(TankWar.class.getResource("shesu.jpg"));
 	private static final long serialVersionUID = 1L;
-	private MyTank mt;              //ÎÒ·½Ì¹¿Ë
+	private MyTank mt;              //æˆ‘æ–¹å¦å…‹
 	private boolean threadAlive=true;
-	private int  enemyTankCount=9;//³õÊ¼µÄ µĞÈËÌ¹¿ËÊıÁ¿
-    private  Vector<EnemyTank>  enemyTankVector;//µĞÈËÌ¹¿ËµÄ¼¯ºÏ
-    private Vector<ZJeffect> zjeffectVector;//   »÷ÖĞĞ§¹û¼¯ºÏ
+	private int  enemyTankCount=9;//åˆå§‹çš„ æ•Œäººå¦å…‹æ•°é‡
+    private  Vector<EnemyTank>  enemyTankVector;//æ•Œäººå¦å…‹çš„é›†åˆ
+    private Vector<ZJeffect> zjeffectVector;//   å‡»ä¸­æ•ˆæœé›†åˆ
     private String zjimg="/tankwar/images/jizhong.png";
-    
+    private Vector<Element> eleVector=new Vector<Element>();
     private Random random=new Random();
-    
-   
+    private  Element  eleBlood;//è¡€é‡
+   	private  Element  eleSpirit;//ç§»åŠ¨é€Ÿåº¦
+   	private  Element  eleWisdom;//å­å¼¹é€Ÿåº¦
      
-    private Vector<Obstruction> obstVector=new Vector<Obstruction>();//ÕÏ°­Îï¼¯ºÏ
-    private  int obstcount=38;//ÕÏ°­ÎïµÄÊıÁ¿   ¸²¸ÇÂÊ10%
+    private Vector<Obstruction> obstVector=new Vector<Obstruction>();//éšœç¢ç‰©é›†åˆ
+    private  int obstcount=38;//éšœç¢ç‰©çš„æ•°é‡   è¦†ç›–ç‡10%
     
-	public MainScene() {//¹¹Ôìº¯Êı ³õÊ¼»¯
+	public MainScene() {//æ„é€ å‡½æ•° åˆå§‹åŒ–
 	    super();
 	    if(enemyTankVector==null){
 	    	enemyTankVector=new Vector<EnemyTank>();
@@ -48,7 +53,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 	         mt = new MyTank(180, 470);
 		     mt.setObstVector(obstVector);
 	    }
-    	 for(int i=1;i<=enemyTankCount;i++){ //³õÊ¼»¯µĞÈËµÄÌ¹¿Ë ¼°×Óµ¯
+    	 for(int i=1;i<=enemyTankCount;i++){ //åˆå§‹åŒ–æ•Œäººçš„å¦å…‹ åŠå­å¼¹
 			  EnemyTank dtank= null;
 			  if(i<=3){
 				  dtank=new EnemyTank(i*160-80,5);
@@ -60,16 +65,16 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 			   dtank.setDtankVector(enemyTankVector);
 			   dtank.setObstVector(obstVector);
 			   enemyTankVector.add(dtank);
-			  new Thread(dtank).start();//µĞÈËÌ¹¿ËÏß³ÌÆô¶¯
-			  Bullet dzd=new Bullet(dtank.getX()+10,dtank.getY()+30,Tank.TANK_ORIENTATION_SOUTH);//µĞ·½×Óµ¯
+			  new Thread(dtank).start();//æ•Œäººå¦å…‹çº¿ç¨‹å¯åŠ¨
+			  Bullet dzd=new Bullet(dtank.getX()+10,dtank.getY()+30,Tank.TANK_ORIENTATION_SOUTH);//æ•Œæ–¹å­å¼¹
 			  dtank.getZdVector().add(dzd);
-			  new Thread(dzd).start();//µĞÈË·¢×Óµ¯µÄÏß³ÌÆô¶¯
+			  new Thread(dzd).start();//æ•Œäººå‘å­å¼¹çš„çº¿ç¨‹å¯åŠ¨
 			 
 		}
 		/*    
-	     * ÉèÕÏ°­Îï³öÏÖµÄ×ø±êÎª(x,y)
-	     * x¡Ê{f(m)|f(m)=m*20+50},m¡Ê{0,1,2,...,21}  Ëæ»úÊı r¡Ê[0,1)  
-	     * y¡Ê{f(n)|f(n)=n*20+50},n ¡Ê{0,1,2,...,20}   
+	     * è®¾éšœç¢ç‰©å‡ºç°çš„åæ ‡ä¸º(x,y)
+	     * xâˆˆ{f(m)|f(m)=m*20+50},mâˆˆ{0,1,2,...,21}  éšæœºæ•° râˆˆ[0,1)  
+	     * yâˆˆ{f(n)|f(n)=n*20+50},n âˆˆ{0,1,2,...,20}   
 	     */
 		 for(int i=1;i<=obstcount;i++){
 			int x=random.nextInt(21)*20+50;
@@ -80,48 +85,50 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 			 new  Thread(obst).start();
 		 }
  
-		new Thread(this).start();//Ãæ°å±¾Éí100ºÁÃëÖØ»æÒ»´Î   µÄÏß³ÌÆô¶¯
+		new Thread(this).start();//é¢æ¿æœ¬èº«100æ¯«ç§’é‡ç»˜ä¸€æ¬¡   çš„çº¿ç¨‹å¯åŠ¨
 	}
     
 	/**
-	 * paint »æÖÆ 
+	 * paint ç»˜åˆ¶ 
 	 */
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 		g.setColor(Color.black);
 		g.fillRect(0, 0, 500, 500);
-	      
-		//»­ÎÒÌ¹¿Ë
+		
+		//ç”»æˆ‘å¦å…‹
 	     if(mt!=null&&MyTankData.currBlood>0){
 			this.drawTank(mt.getX(), mt.getY(), g,mt.getTankType(),mt.getOrientation());
 		 }
-	     //»­ÎÒ·½×Óµ¯
+	     //ç”»æˆ‘æ–¹å­å¼¹
 	     if(mt!=null){
-	    	 for(int i=0;i<mt.getZdVector().size();i++){//»­³öÎÒ·½Ì¹¿ËµÄËùÓĞ×Óµ¯
+	    	 for(int i=0;i<mt.getZdVector().size();i++){//ç”»å‡ºæˆ‘æ–¹å¦å…‹çš„æ‰€æœ‰å­å¼¹
 		        	Bullet zd=mt.getZdVector().get(i);
 		        	if(zd!=null&&zd.isThreadAlive()){
 		        		g.setColor(Color.WHITE);
 		        		g.fill3DRect(zd.getX()-1, zd.getY()-1, 3, 3, false);
 		        	}
-		        	 //Èç¹ûÎÒ·½×Óµ¯»÷ÖĞµĞ·½Ôò
-		        	if(!zd.isThreadAlive()){//vectorÖĞ×Óµ¯¶ÔÏóÒÆ³ıÒ»¸ö
+		        	 //å¦‚æœæˆ‘æ–¹å­å¼¹å‡»ä¸­æ•Œæ–¹åˆ™
+		        	if(!zd.isThreadAlive()){//vectorä¸­å­å¼¹å¯¹è±¡ç§»é™¤ä¸€ä¸ª
 		        		mt.getZdVector().remove(zd);
 		        	}
 		       }
 	     }
-	     //»­µĞ·½Ì¹¿Ë
+	     //ç”»æ•Œæ–¹å¦å…‹
         for(int i=0;i<enemyTankVector.size();i++){
         	  if(enemyTankVector.get(i).getBlood()>0){
         		  this.drawTank(enemyTankVector.get(i).getX(), 
         	        	   enemyTankVector.get(i).getY(), g, Tank.TANK_TYPE_ENEMY, enemyTankVector.get(i).getOrientation());
+        		  int  currentsize= enemyTankVector.get(i).getBlood(); 
+        		  drawBlock(enemyTankVector.get(i).getX(),enemyTankVector.get(i).getY()-5 , 3, 4, 9, currentsize, g, Color.RED);
         	  }
         }
-	    //»­µĞ·½×Óµ¯
+	    //ç”»æ•Œæ–¹å­å¼¹
         for(int i=0;i<enemyTankVector.size();i++){
-        	EnemyTank etank= enemyTankVector.get(i);//µĞ·½µÄÃ¿Ò»Á¾Ì¹¿Ë
-     	     for(int j=0;j<etank.getZdVector().size();j++){  //Ñ­»·±éÀúµĞ·½µÄÃ¿Ò»¸öÌ¹¿Ë£¬»­³öµĞ·½Ã¿Ò»Á¾Ì¹¿ËµÄ Ã¿Ò»¿Å×Óµ¯
-     		   Bullet zd=etank.getZdVector().get(j);//d×Óµ¯
+        	EnemyTank etank= enemyTankVector.get(i);//æ•Œæ–¹çš„æ¯ä¸€è¾†å¦å…‹
+     	     for(int j=0;j<etank.getZdVector().size();j++){  //å¾ªç¯éå†æ•Œæ–¹çš„æ¯ä¸€ä¸ªå¦å…‹ï¼Œç”»å‡ºæ•Œæ–¹æ¯ä¸€è¾†å¦å…‹çš„ æ¯ä¸€é¢—å­å¼¹
+     		   Bullet zd=etank.getZdVector().get(j);//då­å¼¹
      		   if(zd!=null&&zd.isThreadAlive()){
             		g.setColor(Color.WHITE);
             		g.fill3DRect(zd.getX()-1, zd.getY()-1, 3, 3, false);
@@ -133,17 +140,23 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
         }
         
         
-        //»­ÕÏ°­Îï
+        //ç”»éšœç¢ç‰©
         for(int i=0;i<obstcount;i++){
              Obstruction obst=obstVector.get(i);
-             if(obst.getBlood()>0){//Ö»ÓĞµ±ÕÏ°­ÎïÑªÁ¿´óÓÚ0Ê± ²Å»­³öÕÏ°­Îï
+             if(obst.getBlood()>0){//åªæœ‰å½“éšœç¢ç‰©è¡€é‡å¤§äº0æ—¶ æ‰ç”»å‡ºéšœç¢ç‰©
             	 this.drawObst(obst.getX(), obst.getY(), obst.getMaterical(), g);
              }
         }
        
+      //ç”»é“å…·
+        for(int i=0;i<eleVector.size();i++){
+        	 Element ele=eleVector.get(i);
+        	if(ele.isThreadAlive()){
+              drawElement(ele.getX(), ele.getY(), 10, 10, g, ele.getType());
+        	}
+        }
         
-        
-        //»­»÷ÖĞ¿ª»¨Ğ§¹û
+        //ç”»å‡»ä¸­å¼€èŠ±æ•ˆæœ
         for(int i=0;i<zjeffectVector.size();i++){
 			ZJeffect zjeffect=zjeffectVector.get(i);
 			if(zjeffect.getSurvival()>5){
@@ -164,48 +177,93 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 		}
         
         
-          //»­Ã¿Á¾Ì¹¿ËµÄÑªÁ¿
-        for(int i=0;i<12;i++){
-        	if(i<9){
-        		drawTank(505,i*40+15,g,Tank.TANK_TYPE_ENEMY,Tank.TANK_ORIENTATION_NORTH);
-        		 int  currentsize= enemyTankVector.get(i).getBlood();        	
-        		 drawBlock(535,i*40+15+5 , 10, 20, 9, currentsize, g, Color.RED);
-        		 drawBlock(enemyTankVector.get(i).getX(),enemyTankVector.get(i).getY()-5 , 3, 4, 9, currentsize, g, Color.RED);
-        	}else if(i==9){
-        		drawTank(505,i*40+15,g,Tank.TANK_TYPE_US,Tank.TANK_ORIENTATION_NORTH);
-        		drawBlock(535,i*40+15+5, 10, 20, MyTankData.maxBlood, MyTankData.currBlood, g, Color.RED);
+          //ç”»æ¯è¾†å¦å…‹çš„è¡€é‡
+        for(int i=0;i<3;i++){
+        	if(i==0){
+        		g.setColor(Color.red);
+                g.setFont(new Font("å®‹ä½“",Font.BOLD,20));
+                g.drawString("è¡€é‡",520, 15+10);
+                g.drawImage(xuebao.getImage(),620,31,20,20,null);
+        		drawBlock(520,15+15, 10, 20, MyTankData.maxBlood, MyTankData.currBlood, g, Color.RED);
         		drawBlock(mt.getX(), mt.getY()-5 , 3, 4,  MyTankData.maxBlood, MyTankData.currBlood, g, Color.RED);
-        	}else if(i==10){
-        		drawBlock(535, 9*40+15+5+25, 10, 20, MyTankData.maxSpeed, MyTankData.speed, g, Color.blue);
-        	}else if(i==11){
-        		drawBlock(535, 9*40+15+5+25+25, 10, 20, MyTankData.zdMaxSpeed, MyTankData.zdSpeed, g, Color.GREEN);
+        	}else if(i==1){
+        		g.setColor(Color.blue);
+        		g.drawString("ç§»åŠ¨é€Ÿåº¦",520, 15+60);
+        		g.drawImage(yisu.getImage(),620,81,20,20,null);
+        		drawBlock(520, 15+55+10, 10, 20, MyTankData.maxSpeed, MyTankData.speed, g, Color.blue);
+        	}else if(i==2){
+        		g.setColor(Color.GREEN);
+        		g.drawString("å­å¼¹é€Ÿåº¦",520, 15+110);
+        		g.drawImage(shesu.getImage(),620,131,20,20,null);
+        		drawBlock(520, 15+95+20, 10, 20, MyTankData.zdMaxSpeed, MyTankData.zdSpeed, g, Color.GREEN);
         	}
         }
-        //»­¹ØÊı   µÃ·ÖÊı
+        
+        //æ“ä½œè¯´æ˜
+        g.setColor(Color.black);
+        g.setFont(new Font("å®‹ä½“",Font.BOLD,20));
+        g.drawString("æ“ä½œè¯´æ˜ï¼š",520, 200);
+        g.drawString("æ–¹å‘ï¼š",520, 220);
+        g.drawString("W",565, 252);
+        g.drawString("S",565, 287);
+        g.drawString("A",530, 287);
+        g.drawString("D",600, 287);
+        g.drawRect(555, 230, 30, 30);
+        g.drawRect(555, 265, 30, 30);
+        g.drawRect(520, 265, 30, 30);
+        g.drawRect(590, 265, 30, 30);
+        g.drawString("å‘å°„å­å¼¹ï¼š",520, 320);
+        g.drawString("J",565, 352);
+        g.drawRect(555, 330, 30, 30);
+        
+        //ç”»å…³æ•°   å¾—åˆ†æ•°
         g.setColor(Color.red);
-        g.setFont(new Font("»ªÎÄĞĞ¿¬",Font.BOLD,20));
-        g.drawString("µÚ"+MyTankData.sceneNumber+"¹Ø",505, 470);
+        g.setFont(new Font("å®‹ä½“",Font.BOLD,20));
+        g.drawString("ç¬¬"+MyTankData.sceneNumber+"å…³",520, 450);
         g.setColor(Color.MAGENTA);
-        g.drawString("µÃ·Ö£º"+MyTankData.totalScore,505, 490);
+        g.drawString("å¾—åˆ†ï¼š"+MyTankData.totalScore,520, 480);
         
-      
+        //åˆ¤æ–­æ˜¯å¦äº§ç”Ÿï¼ˆåˆå§‹åŒ–ï¼‰é“å…· ï¼Œ æœ‰ä¸€å®šçš„å‡ ç‡äº§ç”Ÿé“å…·
+		 int n= random.nextInt(3300);
+		 if(n==33){
+			 eleBlood=new Element();
+			 eleBlood.setType(Element.TYPE_BLOOD);
+			 eleBlood.setX(random.nextInt(491));
+			 eleBlood.setY(random.nextInt(491));
+			 this.eleVector.add(eleBlood);
+			  new Thread(eleBlood).start();
+		 }else if(n==66){
+			 eleSpirit=new Element();
+			 eleSpirit.setType(Element.TYPE_SPIRIT);
+			 eleSpirit.setX(random.nextInt(491));
+			 eleSpirit.setY(random.nextInt(491));
+			 this.eleVector.add(eleSpirit);
+			 new Thread(eleSpirit).start();
+		 }else if(n==99){
+			 eleWisdom=new Element();
+			 eleWisdom.setType(Element.TYPE_WISDOM);
+			 eleWisdom.setX(random.nextInt(491));
+			 eleWisdom.setY(random.nextInt(491));
+			 this.eleVector.add(eleWisdom);
+			 new Thread(eleWisdom).start();
+		 }
         
-         //ÅĞ¶ÏÍ¨¹Ø£¬ ½øÈëÇĞ»»¹Ø¿¨½çÃæ
+         //åˆ¤æ–­é€šå…³ï¼Œ è¿›å…¥åˆ‡æ¢å…³å¡ç•Œé¢
         if(enemyTankVector!=null&&enemyTankVector.size()>0){
        	 if(hasDestroyAll(enemyTankVector)){
-       		    MyTankData.sceneNumber++;//¹Ø¿¨Êı¼Ó1
-       		    EnemyTankData.sceneNumber++;//¹Ø¿¨Êı¼Ó1
+       		    MyTankData.sceneNumber++;//å…³å¡æ•°åŠ 1
+       		    EnemyTankData.sceneNumber++;//å…³å¡æ•°åŠ 1
        		    EnemyTankData.passScene();
-         	// Ö÷³¡¾°¶ÔÏóÇå³ı    ²¢´Ó´°ÌåÖĞÒÆ³ıÖ÷³¡¾°   
+         	// ä¸»åœºæ™¯å¯¹è±¡æ¸…é™¤    å¹¶ä»çª—ä½“ä¸­ç§»é™¤ä¸»åœºæ™¯   
  		     if(this.isThreadAlive()){
- 		    	  this.setThreadAlive(false);//½áÊø±¾´ÎÖ÷³¡¾°Ïß³Ì
+ 		    	  this.setThreadAlive(false);//ç»“æŸæœ¬æ¬¡ä¸»åœºæ™¯çº¿ç¨‹
  		      }
- 		     JFrame f2=FrameAndScene.getFrame(); //½«Ö÷³¡¾°Ãæ°å´Ó´°ÌåÖĞÒÆ³ı
+ 		     JFrame f2=FrameAndScene.getFrame(); //å°†ä¸»åœºæ™¯é¢æ¿ä»çª—ä½“ä¸­ç§»é™¤
  		     if(f2!=null){
  		    	f2.remove(this);
  		     }
  		     
- 		  	// ĞÂÇĞ»»¹Ø¿¨¶ÔÏó´´½¨,²¢½«ĞÂÇĞ»»¹Ø¿¨¶ÔÏóÌí¼Óµ½´°ÌåÖĞ.  ±£´æĞÂ´´½¨µÄÇĞ»»¹Ø¿¨¶ÔÏó
+ 		  	// æ–°åˆ‡æ¢å…³å¡å¯¹è±¡åˆ›å»º,å¹¶å°†æ–°åˆ‡æ¢å…³å¡å¯¹è±¡æ·»åŠ åˆ°çª—ä½“ä¸­.  ä¿å­˜æ–°åˆ›å»ºçš„åˆ‡æ¢å…³å¡å¯¹è±¡
        		 SwitchScene  newSwScene=new SwitchScene(0, 0, 500, 500);
        		 FrameAndScene.setSwScene(newSwScene);
        		 JFrame f=FrameAndScene.getFrame();
@@ -221,8 +279,8 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 					super.mouseClicked(e);
 					
 					/*
-					 * µã»÷Ê±£º   ½«ÇĞ»»¹Ø¿¨¶ÔÏóÇå³ı£¬²¢´Ó´°ÌåÖĞÒÆ³ıÇĞ»»¹Ø¿¨¶ÔÏó¡£
-					 *          ´´½¨ĞÂµÄÖ÷³¡¾°¶ÔÏó£¬²¢½«Ö÷³¡¾°¶ÔÏóÌí¼Óµ½´°ÌåÖĞ.  ±£´æĞÂ´´½¨µÄÖ÷³¡¾°¶ÔÏó
+					 * ç‚¹å‡»æ—¶ï¼š   å°†åˆ‡æ¢å…³å¡å¯¹è±¡æ¸…é™¤ï¼Œå¹¶ä»çª—ä½“ä¸­ç§»é™¤åˆ‡æ¢å…³å¡å¯¹è±¡ã€‚
+					 *          åˆ›å»ºæ–°çš„ä¸»åœºæ™¯å¯¹è±¡ï¼Œå¹¶å°†ä¸»åœºæ™¯å¯¹è±¡æ·»åŠ åˆ°çª—ä½“ä¸­.  ä¿å­˜æ–°åˆ›å»ºçš„ä¸»åœºæ™¯å¯¹è±¡
 					 */
 				   SwitchScene swsc=FrameAndScene.getSwScene();
 					if(swsc!=null ){
@@ -234,12 +292,12 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 						 swsc=null; 
 						 FrameAndScene.setSwScene(null);
 					}
-					MainScene nextMainScene= new MainScene();//´´½¨ĞÂµÄÖ÷³¡¾°
+					MainScene nextMainScene= new MainScene();//åˆ›å»ºæ–°çš„ä¸»åœºæ™¯
 				    nextMainScene.setSize(500, 500);
-					FrameAndScene.setMainScene(nextMainScene);//±£´æÆğÀ´
+					FrameAndScene.setMainScene(nextMainScene);//ä¿å­˜èµ·æ¥
 					JFrame f=FrameAndScene.getFrame();
 					f.add(nextMainScene); 
-					   f.addKeyListener(nextMainScene);//ÎÒ·½Ì¹¿ËÉÏÏÂ×óÓÒ ·¢Éä×Óµ¯ ¼àÌı 
+					   f.addKeyListener(nextMainScene);//æˆ‘æ–¹å¦å…‹ä¸Šä¸‹å·¦å³ å‘å°„å­å¼¹ ç›‘å¬ 
 					new Thread(nextMainScene).start();
 					f.setVisible(true);
 					f.setResizable(false);
@@ -248,17 +306,17 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 		     });
        	 }
        }  
-       //ÅĞ¶ÏÎÒ·½Ì¹¿ËÊÇ·ñËÀÍö£¬½øÈë½áÊøÓÎÏ·½çÃæ
+       //åˆ¤æ–­æˆ‘æ–¹å¦å…‹æ˜¯å¦æ­»äº¡ï¼Œè¿›å…¥ç»“æŸæ¸¸æˆç•Œé¢
         if(MyTankData.currBlood<=0){
         	 if(this.isThreadAlive()){
-		    	  this.setThreadAlive(false);//½áÊø±¾´ÎÖ÷³¡¾°Ïß³Ì
+		    	  this.setThreadAlive(false);//ç»“æŸæœ¬æ¬¡ä¸»åœºæ™¯çº¿ç¨‹
 		      }
-		     JFrame f2=FrameAndScene.getFrame(); //½«Ö÷³¡¾°Ãæ°å´Ó´°ÌåÖĞÒÆ³ı
+		     JFrame f2=FrameAndScene.getFrame(); //å°†ä¸»åœºæ™¯é¢æ¿ä»çª—ä½“ä¸­ç§»é™¤
 		     if(f2!=null){
 		    	f2.remove(this);
 		     }
-        	  
-		     EndScene  endScene=new EndScene(0, 0, 500, 500);
+		     
+		     EndScene  endScene=new EndScene(0, 0, 700, 500);
        		 FrameAndScene.setEndScene(endScene);
        		 JFrame f=FrameAndScene.getFrame();
        		 f.add(endScene); 
@@ -283,7 +341,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 	
  
 	/**
-	 * »­³öÌ¹¿Ë
+	 * ç”»å‡ºå¦å…‹
 	 * @param x
 	 * @param y
 	 * @param g
@@ -299,8 +357,8 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 			g.setColor(Color.YELLOW);
 			break;
 		}
-		switch (orientation) {//Ì¹¿Ë³¯Ïò
-		case Tank.TANK_ORIENTATION_NORTH: //±±
+		switch (orientation) {//å¦å…‹æœå‘
+		case Tank.TANK_ORIENTATION_NORTH: //åŒ—
             g.fill3DRect(x, y, 5, 30, false);
             g.fill3DRect(x+15, y, 5, 30, false);
             g.fill3DRect(x+5, y+5, 10, 20, false);
@@ -308,7 +366,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
             g.drawLine(x+10, y+15, x+10, y-3);
             
 			break;
-		case Tank.TANK_ORIENTATION_WEST://Î÷
+		case Tank.TANK_ORIENTATION_WEST://è¥¿
             g.fill3DRect(x, y, 30, 5, false);
             g.fill3DRect(x, y+15, 30, 5, false);
             g.fill3DRect(x+5, y+5, 20, 10, false);
@@ -316,14 +374,14 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
             g.drawLine(x+15,y+10,x-3,y+10);
             
 			break;
-		case Tank.TANK_ORIENTATION_SOUTH://ÄÏ
+		case Tank.TANK_ORIENTATION_SOUTH://å—
 		    g.fill3DRect(x, y, 5, 30, false);
             g.fill3DRect(x+15, y, 5, 30, false);
             g.fill3DRect(x+5, y+5, 10, 20, false);
             g.fillOval(x+5, y+10, 10, 10);
             g.drawLine(x+10,y+15,x+10,y+33);
 			break;
-		case Tank.TANK_ORIENTATION_EAST://¶«
+		case Tank.TANK_ORIENTATION_EAST://ä¸œ
 	        g.fill3DRect(x, y, 30, 5, false);
             g.fill3DRect(x, y+15, 30, 5, false);
             g.fill3DRect(x+5, y+5, 20, 10, false);
@@ -336,7 +394,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 	
 	
 	/**
-	 * »­ ¿é×´Îï    Ñª  À¶ ÂÌ
+	 * ç”» å—çŠ¶ç‰©    è¡€  è“ ç»¿
 	 * @param x
 	 * @param y
 	 * @param totalsize
@@ -350,14 +408,10 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 		g.fillRect(x, y, currentsize*width,height);
 	}
 	 
-	/**
-	 * »­Ì¹¿ËÍ·ÉÏµÄÑªÌõ
-	 */
 	
-	public void drawlife() {}
 	
 	/**
-	 * »­ÕÏ°­Îï
+	 * ç”»éšœç¢ç‰©
 	 * @param x
 	 * @param y
 	 * @param materical
@@ -366,22 +420,49 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
     public void drawObst(int x,int y,int materical,Graphics g){
     	switch(materical){
     	case 0:
-    		g.setColor(new Color(Integer.parseInt("f27116",16)));
+    		
+    		g.drawImage(brickwall.getImage(),x,y,20,20,null);
     		break;
     	case 1:
-    		g.setColor(new Color(Integer.parseInt("ffffff",16)));
+    		
+    		g.drawImage(steelwall.getImage(),x,y,20,20,null);
     		break;
     	}
-    	g.fill3DRect(x, y, 20, 20, false);
+    	
     }
 	
+    /**
+	 * ç”»é“å…·
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
+	 * @param g
+	 * @param type
+	 */
+	 public void drawElement(int x,int y,int width,int height,Graphics g,int type){
+		 //g.setColor(c);
+		 switch(type){
+		 case 0:
+			 g.drawImage(xuebao.getImage(),x,y,20,20,null);
+			 break;
+		 case 1:
+			 g.drawImage(yisu.getImage(),x,y,20,20,null);
+			 break;
+		 case 2:
+			 g.drawImage(shesu.getImage(),x,y,20,20,null);
+			 break;
+		 }
+		 
+		 
+	 }
 	/**
-	 * ¼ÆËãÊÇ·ñ»÷ÖĞ
+	 * è®¡ç®—æ˜¯å¦å‡»ä¸­
 	 * @param zd
 	 * @param tank
 	 * @return
 	 */
-	private boolean isHit(Bullet zd, Tank tank) {//¼ÆËã×Óµ¯ÊÇ·ñ»÷ÖĞÌ¹¿Ë 
+	private boolean isHit(Bullet zd, Tank tank) {//è®¡ç®—å­å¼¹æ˜¯å¦å‡»ä¸­å¦å…‹ 
 	     switch(tank.getOrientation()){
 	     case Tank.TANK_ORIENTATION_NORTH:
 	     case Tank.TANK_ORIENTATION_SOUTH:
@@ -402,7 +483,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 	}
 	
 	/**
-	 * ÅĞ¶ÏÊÇ·ñÏûÃğÁËµĞ·½ËùÓĞÌ¹¿Ë  
+	 * åˆ¤æ–­æ˜¯å¦æ¶ˆç­äº†æ•Œæ–¹æ‰€æœ‰å¦å…‹  
 	 * @param dtanks
 	 * @return
 	 */
@@ -415,7 +496,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 		return true;
 	} 
 	/**
-	 * Ö÷Ïß³Ì¼üÅÌ¼àÌı
+	 * ä¸»çº¿ç¨‹é”®ç›˜ç›‘å¬
 	 */
 	@Override
 	public void keyTyped(KeyEvent e) {
@@ -425,7 +506,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 	}
 	@Override
 	public void keyPressed(KeyEvent e) {
-		 if(e.getKeyCode()==KeyEvent.VK_W){ //ÉÏÒÆ¶¯
+		 if(e.getKeyCode()==KeyEvent.VK_W){ //ä¸Šç§»åŠ¨
 			  mt.setOrientation(Tank.TANK_ORIENTATION_NORTH);
 			  
 			 if(mt.getY()>0&&mt.isCanNorthMove()){
@@ -448,7 +529,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 				}
 			 }
 		 }
-		 else if(e.getKeyCode()==KeyEvent.VK_A){//×óÒÆ¶¯
+		 else if(e.getKeyCode()==KeyEvent.VK_A){//å·¦ç§»åŠ¨
 			  mt.setOrientation(Tank.TANK_ORIENTATION_WEST);
 			 if(mt.getX()>0&&mt.isCanWestMove()){
 				    mt.westmove();
@@ -473,7 +554,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 					}
 			 }
 		 }
-		 else if(e.getKeyCode()==KeyEvent.VK_S){//ÏÂÒÆ¶¯
+		 else if(e.getKeyCode()==KeyEvent.VK_S){//ä¸‹ç§»åŠ¨
 			  mt.setOrientation(Tank.TANK_ORIENTATION_SOUTH);
 			 if(mt.getY()<470&&mt.isCanSouthMove()){
 				     mt.southmove();
@@ -495,7 +576,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 					}
 			 }
 		 }
-		 else  if(e.getKeyCode()==KeyEvent.VK_D){//ÓÒÒÆ¶¯
+		 else  if(e.getKeyCode()==KeyEvent.VK_D){//å³ç§»åŠ¨
 			  mt.setOrientation(Tank.TANK_ORIENTATION_EAST);
 			 if(mt.getX()<470&&mt.isCanEastMove()){
 				     mt.eastmove();
@@ -521,28 +602,28 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 		 }
 		 if(e.getKeyCode()==KeyEvent.VK_J){
 			 if(mt.getZdVector().size()<8){
-				  mt.fszd();// ·¢Éä×Óµ¯  Ö»ÔÊĞíÍ¬Ê±ÓĞ8¿Å×Óµ¯ÔÚ½çÃæÖĞ´æÔÚ
+				  mt.fszd();// å‘å°„å­å¼¹  åªå…è®¸åŒæ—¶æœ‰8é¢—å­å¼¹åœ¨ç•Œé¢ä¸­å­˜åœ¨
 			 }
 		 }
-		 this.repaint();//ÎÒ·½Ì¹¿ËÖ»Òª·¢ÉäÁË×Óµ¯»òÒÆ¶¯ÁËÎ»ÖÃ¾Í»áÇ¿ÖÆÖØ»æ
+		 this.repaint();//æˆ‘æ–¹å¦å…‹åªè¦å‘å°„äº†å­å¼¹æˆ–ç§»åŠ¨äº†ä½ç½®å°±ä¼šå¼ºåˆ¶é‡ç»˜
 	}
 
 	 /**
-	  * Ö÷Ïß³Ì run ·½·¨
+	  * ä¸»çº¿ç¨‹ run æ–¹æ³•
 	  */
 	@Override
-	public void run() {//ÈÃÃæ°åÃ¿¸ô100ºÁÃëÖØ»æÒ»´Î ,ÕâÀïÒ»¶¨ÒªÈÃÏß³ÌĞİÏ¢Ò»ÏÂ£¬·ñÔòºÜÈİÒ×Ôì³ÉÄÚ´æĞ¹Â¶
+	public void run() {
 		while(threadAlive){
 			 try {
 				Thread.sleep(100);
-				//ÅĞ¶ÏÎÒ·½»÷ÖĞµĞ·½
-				for(int i=0;i<mt.getZdVector().size();i++){//¶ÔÎÒ·½Ì¹¿ËµÄÃ¿Ò»¿Å×Óµ¯½øĞĞÅĞ¶Ï  ÎÒ·½Ì¹¿Ë×Óµ¯»÷ÖĞµĞ·½
+				//åˆ¤æ–­æˆ‘æ–¹å‡»ä¸­æ•Œæ–¹
+				for(int i=0;i<mt.getZdVector().size();i++){//å¯¹æˆ‘æ–¹å¦å…‹çš„æ¯ä¸€é¢—å­å¼¹è¿›è¡Œåˆ¤æ–­  æˆ‘æ–¹å¦å…‹å­å¼¹å‡»ä¸­æ•Œæ–¹
 					if(mt.getZdVector().get(i).isThreadAlive()){
 						for(int j=0;j<enemyTankVector.size();j++){
 							 if(enemyTankVector.get(j).getBlood()>0){
-								if( isHit(mt.getZdVector().get(i),enemyTankVector.get(j))){//¼ì²âÊÇ·ñÃüÖĞÌ¹¿Ë
+								if( isHit(mt.getZdVector().get(i),enemyTankVector.get(j))){//æ£€æµ‹æ˜¯å¦å‘½ä¸­å¦å…‹
 									
-									   mt.getZdVector().get(i).setThreadAlive(false);//ÎÒ·½×Óµ¯µÄ´æ»îÆÚÉèÖÃÎªfalse
+									   mt.getZdVector().get(i).setThreadAlive(false);//æˆ‘æ–¹å­å¼¹çš„å­˜æ´»æœŸè®¾ç½®ä¸ºfalse
 									   enemyTankVector.get(j).reduceBlood();
 									   zjeffectVector.add(new ZJeffect(enemyTankVector.get(j).getX(),enemyTankVector.get(j).getY(),zjimg));
 									   MyTankData.totalScore+=5;
@@ -552,22 +633,22 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 						
 					}
 				}
-				//ÅĞ¶ÏµĞ·½»÷ÖĞÎÒ·½
-				for(int i=0;i<enemyTankVector.size();i++){//Ñ­»·±éÀúµĞ·½µÄËùÓĞµÄÌ¹¿Ë
+				//åˆ¤æ–­æ•Œæ–¹å‡»ä¸­æˆ‘æ–¹
+				for(int i=0;i<enemyTankVector.size();i++){//å¾ªç¯éå†æ•Œæ–¹çš„æ‰€æœ‰çš„å¦å…‹
 					 EnemyTank etank=  enemyTankVector.get(i);
-					 for(int j=0;j<etank.getZdVector().size();j++){//±éÀúµĞ·½Ã¿Ò»¸öÌ¹¿ËµÄÃ¿Ò»¸ö×Óµ¯
+					 for(int j=0;j<etank.getZdVector().size();j++){//éå†æ•Œæ–¹æ¯ä¸€ä¸ªå¦å…‹çš„æ¯ä¸€ä¸ªå­å¼¹
 						  if(MyTankData.currBlood>0){
 							  if(isHit(etank.getZdVector().get(j),mt)){
 								     etank.getZdVector().get(j).setThreadAlive(false);
-							 	    zjeffectVector.add(new ZJeffect(mt.getX(),mt.getY(),zjimg));//¿ª»¨
-								     MyTankData.currBlood--;//¼õÑª
+							 	    zjeffectVector.add(new ZJeffect(mt.getX(),mt.getY(),zjimg));//å¼€èŠ±
+								     MyTankData.currBlood--;//å‡è¡€
 									 
 							  }
 						  }
 					 }
 				}
 				
-				//ÅĞ¶Ï×Óµ¯»÷ÖĞÕÏ°­Îï
+				//åˆ¤æ–­å­å¼¹å‡»ä¸­éšœç¢ç‰©
 				for(int i=0;i<obstVector.size();i++){
 				  Obstruction obst=	obstVector.get(i);
 				   for(EnemyTank tanks :enemyTankVector){
@@ -587,7 +668,7 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 					    	}
 					    }
 				   }
-				  for(Bullet zd :mt.getZdVector()){//ÅĞ¶Ï×Óµ¯»÷ÖĞÕÏ°­Îï
+				  for(Bullet zd :mt.getZdVector()){//åˆ¤æ–­å­å¼¹å‡»ä¸­éšœç¢ç‰©
 					  if(zd.isThreadAlive()&&obst.getBlood()>0){
 					    if(obst.isBitten(zd)){
 						   if(obst.getMaterical()==0){
@@ -601,7 +682,56 @@ public class MainScene extends JPanel implements KeyListener,Runnable {
 				        }
 					  }
 				}
-				
+				//å¦å…‹æ¡åˆ°é“å…·
+				for(int i=0;i<eleVector.size();i++){
+					Element ele=eleVector.get(i);
+					if(ele.isThreadAlive()){
+						for(int j=0;j< this.enemyTankVector.size();j++){
+					     	EnemyTank dtank=enemyTankVector.get(j);
+							if(dtank.getBlood()>0){
+								if(ele.isCollsion(dtank)){
+									ele.setThreadAlive(false);
+									switch(ele.getType()){
+									case Element.TYPE_BLOOD:
+										if(dtank.getBlood()<EnemyTank.ENEMY_TANK_MAX_BLOOD){
+											dtank.setBlood(dtank.getBlood()+1);
+										}
+										break;
+							    	case Element.TYPE_SPIRIT:
+										 dtank.setSpeed(dtank.getSpeed()+1);							
+									break;
+								    case Element.TYPE_WISDOM:
+									    dtank.setZdSpeed(dtank.getZdSpeed()+1);
+									break;
+									}
+									
+								}
+							}
+					   }
+						if(ele.isCollsion(mt)){
+							ele.setThreadAlive(false);
+							switch(ele.getType()){
+							case Element.TYPE_BLOOD:
+								if(MyTankData.currBlood<MyTankData.maxBlood){
+									MyTankData.currBlood++;
+								}
+								break;
+					    	case Element.TYPE_SPIRIT:
+								if(MyTankData.speed<MyTankData.maxSpeed){
+									MyTankData.speed++;
+								} 	
+								break;
+					    	case Element.TYPE_WISDOM:
+					    	    if(MyTankData.zdSpeed<MyTankData.zdMaxSpeed){
+					    	    	MyTankData.zdSpeed++;
+					    	    }
+							   break;
+						    
+							}
+						}
+					}
+					
+				}	
 				
 				
 				
