@@ -6,19 +6,18 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 
-import javax.swing.JPanel;
-
+import javax.swing.*;
 /**
- * ÓÎÏ·¿ªÊ¼ ³¡¾°
+ * æ¸¸æˆå¼€å§‹ åœºæ™¯
  */
 public class StartScene extends JPanel implements Runnable{
 	private static final long serialVersionUID = 1L; 
 	private int x;
 	private int y;
-	private int width;
+	//private int width;
 	private int height;
-	
-	private boolean threadAlive=true;  //Ïß³Ì´æ»î
+	ImageIcon start = new ImageIcon(TankWar.class.getResource("start.jpg"));
+	private boolean threadAlive=true;  //çº¿ç¨‹å­˜æ´»
 	public boolean isThreadAlive() {
 		return threadAlive;
 	}
@@ -27,12 +26,11 @@ public class StartScene extends JPanel implements Runnable{
 	}
     public void paint(Graphics g){
 		super.paint(g);
-		g.setColor(Color.WHITE);
-		g.fillRect(x, y, width, height);
-			g.setColor(Color.BLACK);
-			Font font=new Font("»ªÎÄĞĞ¿¬",Font.BOLD,40) ;
-			g.setFont(font);
-			g.drawString("Ì¹¿Ë´óÕ½", 80, 200);
+		g.drawImage(start.getImage(),x,y,700,height,null);
+		g.setColor(Color.white);
+		Font font1=new Font("åæ–‡è¡Œæ¥·",Font.BOLD,60) ;
+		g.setFont(font1);
+		g.drawString("å¦å…‹å¤§æˆ˜", 200, 200);
 	}
 	public  StartScene(){
 		super();
@@ -41,7 +39,7 @@ public class StartScene extends JPanel implements Runnable{
     	super();
 		this.x=x;
 		this.y=y;
-		this.width=width;
+		//this.width=width;
 		this.height=height;
 		 
 	}
