@@ -10,8 +10,7 @@ import javax.swing.JPanel;
 
 
 /**
- *  ½øÈëÏÂÒ»¹Ø¿¨ ³¡¾°
- * @author jelly
+ *  è¿›å…¥ä¸‹ä¸€å…³å¡ åœºæ™¯
  *
  */
 public class SwitchScene extends JPanel implements Runnable{
@@ -19,7 +18,7 @@ public class SwitchScene extends JPanel implements Runnable{
 	private static final long serialVersionUID = 1L;
     private int x;
     private int y;
-    private int width;
+    //private int width;
     private int height;
     private int times=0;
     private boolean threadAlive=true;
@@ -34,29 +33,29 @@ public class SwitchScene extends JPanel implements Runnable{
 	public void paint(Graphics g) {
 		super.paint(g);
 		g.setColor(Color.BLACK);
-		g.fillRect(x, y, width, height);
-		Font font=new Font("»ªÎÄĞĞ¿¬",Font.BOLD,40) ;
+		g.fillRect(x, y, 700, height);
+		Font font=new Font("åæ–‡è¡Œæ¥·",Font.BOLD,40) ;
 		int sceneNumber=MyTankData.sceneNumber;
 		int totalScore=MyTankData.totalScore;
 		times++;
 		if(times%3==0){
 			g.setColor(Color.GREEN);
 			g.setFont(font);
-			g.drawString("½øÈëµÚ"+sceneNumber+"¹Ø", 140, 200);
-			g.drawString("×Ü·Ö£º"+totalScore,140,280);
+			g.drawString("è¿›å…¥ç¬¬"+sceneNumber+"å…³", 150, 200);
+			g.drawString("æ€»åˆ†ï¼š"+totalScore,150,280);
 		}else if(times%3==1){
 			g.setColor(Color.cyan);
 			g.setFont(font);
-			g.drawString("½øÈëµÚ"+sceneNumber+"¹Ø", 140, 200);
-			g.drawString("×Ü·Ö£º"+totalScore,140,280);
+			g.drawString("è¿›å…¥ç¬¬"+sceneNumber+"å…³", 150, 200);
+			g.drawString("æ€»åˆ†ï¼š"+totalScore,150,280);
 		}else{
 			g.setColor(Color.pink);
 			g.setFont(font);
-			g.drawString("½øÈëµÚ"+sceneNumber+"¹Ø", 140, 200);
-			g.drawString("×Ü·Ö£º"+totalScore,140,280);
+			g.drawString("è¿›å…¥ç¬¬"+sceneNumber+"å…³", 150, 200);
+			g.drawString("æ€»åˆ†ï¼š"+totalScore,150,280);
 		}
 		g.setColor(Color.white);
-		g.setFont(new Font("»ªÎÄĞĞ¿¬",Font.BOLD,25));
+		g.setFont(new Font("åæ–‡è¡Œæ¥·",Font.BOLD,25));
 		
 	}
 	
@@ -67,7 +66,7 @@ public class SwitchScene extends JPanel implements Runnable{
     public SwitchScene(int x,int y,int width,int height){
     	this.x=x;
     	this.y=y;
-    	this.width=width;
+    	//this.width=width;
     	this.height=height;
     }
     
